@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:WpfApp2"
         xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
         mc:Ignorable="d"
-        Title="Учет личных финансов" Height="600" Width="800"
+        Title="Учет личных финансов" Height="600" Width="1050"
         Background="#ECEFF4">
     <Grid>
         <Grid.RowDefinitions>
@@ -26,36 +26,57 @@
             <!-- Вкладка "Транзакции" -->
             <TabItem Header="Транзакции" HorizontalAlignment="Left" Margin="-2,-2,0,0" Width="81">
                 <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="55*"/>
+                        <ColumnDefinition Width="3*"/>
+                    </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
 
                     <!-- Форма добавления транзакции -->
-                    <StackPanel Orientation="Horizontal" Margin="0 0 0 20">
+                    <StackPanel Orientation="Horizontal" Margin="0 0 0 20" Grid.ColumnSpan="2">
+                        <TextBlock Text="Вид" Margin="10 0 10 0" Foreground="#2E3440"/>
                         <ComboBox Width="150" 
                                   ItemsSource="{Binding Categories}" 
                                   SelectedItem="{Binding SelectedCategory}" 
                                   Margin="0 0 10 0" />
+                        <TextBlock Text="Сумма" Margin="0 0 10 0" Foreground="#2E3440"/>
                         <TextBox Width="100" 
                                  Text="{Binding Amount}" 
                                  Margin="0 0 10 0" />
                         <DatePicker SelectedDate="{Binding Date}" 
                                    Margin="0 0 10 0" />
+                        <TextBlock Text="Описание" Margin="0 0 10 5" Foreground="#2E3440"/>
                         <TextBox Width="200" 
                                  Text="{Binding Description}" 
                                  Margin="0 0 10 0" />
                         <Button Content="Добавить" 
                                 Command="{Binding AddTransactionCommand}" 
                                 Background="#5E81AC" 
-                                Foreground="White" />
+                                Foreground="White" 
+                                Margin="10 0 0 0"
+                                Padding="10 5"/>
+                        <Button Content="Сохранить" 
+                                Command="{Binding SaveToFileCommand}" 
+                                Background="#4CAF50" 
+                                Foreground="White"
+                                Margin="10 0 0 0"
+                                Padding="10 5"/>
+                        <Button Content="Загрузить" 
+                                Command="{Binding LoadFromFileCommand}" 
+                                Background="#2196F3" 
+                                Foreground="White"
+                                Margin="10 0 0 0"
+                                Padding="10 5"/>
                     </StackPanel>
 
                     <!-- Список транзакций -->
                     <DataGrid Grid.Row="1" 
                               ItemsSource="{Binding Transactions}" 
                               AutoGenerateColumns="False" 
-                              IsReadOnly="True">
+                              IsReadOnly="True" Grid.ColumnSpan="2">
                         <DataGrid.Columns>
                             <DataGridTextColumn Header="Дата" Binding="{Binding Date, StringFormat=\{0:d\}}" />
                             <DataGridTextColumn Header="Категория" Binding="{Binding Category}" />

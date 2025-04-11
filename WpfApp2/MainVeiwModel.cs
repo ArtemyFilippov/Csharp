@@ -7,6 +7,9 @@ using LiveCharts.Wpf;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using System.Threading.Tasks;
+using System.Windows;
+using System.IO; 
+using Microsoft.Win32; 
 
 namespace WpfApp2
 {
@@ -19,6 +22,9 @@ namespace WpfApp2
         public decimal Amount { get; set; }
         public DateTime Date { get; set; } = DateTime.Now;
         public string Description { get; set; }
+        //Работа с бд (txt файл)
+        public ICommand SaveToFileCommand { get; }
+        public ICommand LoadFromFileCommand { get; }
 
         // Команда для добавления транзакции
         public ICommand AddTransactionCommand { get; }
@@ -40,12 +46,68 @@ namespace WpfApp2
             SpendingByCategory = new SeriesCollection();
             CategoryLabels = new List<string> { "Еда", "Транспорт", "Развлечения" };
 
+            SaveToFileCommand = new RelayCommand(SaveToFile);
+            LoadFromFileCommand = new RelayCommand(LoadFromFile);
+
             // Пример данных для графика
             SpendingByCategory.Add(new ColumnSeries
             {
                 Title = "Расходы",
-                Values = new ChartValues<decimal> { 500, 300, 200 }
+                Values = new ChartValues<decimal> { 0, 0, 0 }
             });
+        }
+
+        private void SaveToFile()
+        {
+            try
+            {
+                string filePath = "transactions.txt";
+                var lines = Transactions.Select(t => $"{t.Category}|{t.Amount}|{t.Date}|{t.Description}");
+                File.WriteAllLines(filePath, lines);
+                MessageBox.Show("Данные сохранены в файл!");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка сохранения: {ex.Message}");
+            }
+        }
+
+        private void LoadFromFile()
+        {
+            try
+            {
+                string filePath = "transactions.txt";
+                if (!File.Exists(filePath))
+                {
+                    MessageBox.Show("Файл не найден!");
+                    return;
+                }
+
+                var lines = File.ReadAllLines(filePath);
+                Transactions.Clear();
+
+                foreach (var line in lines)
+                {
+                    var parts = line.Split('|');
+                    if (parts.Length == 4)
+                    {
+                        Transactions.Add(new Transaction
+                        {
+                            Category = parts[0],
+                            Amount = decimal.Parse(parts[1]),
+                            Date = DateTime.Parse(parts[2]),
+                            Description = parts[3]
+                        });
+                    }
+                }
+
+                MessageBox.Show("Данные загружены из файла!");
+                UpdateChart();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка загрузки: {ex.Message}");
+            }
         }
 
         private void AddTransaction()
@@ -59,13 +121,11 @@ namespace WpfApp2
             };
             Transactions.Add(transaction);
 
-            // Обновление графика
             UpdateChart();
         }
 
         private void UpdateChart()
         {
-            // Логика обновления графика на основе новых данных
         }
     }
 
