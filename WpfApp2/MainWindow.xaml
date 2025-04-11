@@ -1,0 +1,98 @@
+﻿<Window x:Class="WpfApp2.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WpfApp2"
+        xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
+        mc:Ignorable="d"
+        Title="Учет личных финансов" Height="600" Width="800"
+        Background="#ECEFF4">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Заголовок -->
+        <TextBlock Text="Учет личных финансов" 
+                   FontSize="24" 
+                   FontWeight="SemiBold" 
+                   Foreground="#2E3440" 
+                   Margin="20" />
+
+        <!-- Основной контент -->
+        <TabControl Grid.Row="1" Margin="20">
+            <!-- Вкладка "Транзакции" -->
+            <TabItem Header="Транзакции" HorizontalAlignment="Left" Margin="-2,-2,0,0" Width="81">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <!-- Форма добавления транзакции -->
+                    <StackPanel Orientation="Horizontal" Margin="0 0 0 20">
+                        <ComboBox Width="150" 
+                                  ItemsSource="{Binding Categories}" 
+                                  SelectedItem="{Binding SelectedCategory}" 
+                                  Margin="0 0 10 0" />
+                        <TextBox Width="100" 
+                                 Text="{Binding Amount}" 
+                                 Margin="0 0 10 0" />
+                        <DatePicker SelectedDate="{Binding Date}" 
+                                   Margin="0 0 10 0" />
+                        <TextBox Width="200" 
+                                 Text="{Binding Description}" 
+                                 Margin="0 0 10 0" />
+                        <Button Content="Добавить" 
+                                Command="{Binding AddTransactionCommand}" 
+                                Background="#5E81AC" 
+                                Foreground="White" />
+                    </StackPanel>
+
+                    <!-- Список транзакций -->
+                    <DataGrid Grid.Row="1" 
+                              ItemsSource="{Binding Transactions}" 
+                              AutoGenerateColumns="False" 
+                              IsReadOnly="True">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Дата" Binding="{Binding Date, StringFormat=\{0:d\}}" />
+                            <DataGridTextColumn Header="Категория" Binding="{Binding Category}" />
+                            <DataGridTextColumn Header="Сумма" Binding="{Binding Amount}" />
+                            <DataGridTextColumn Header="Описание" Binding="{Binding Description}" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+
+            <!-- Вкладка "Анализ" -->
+            <TabItem Header="Анализ">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <!-- График расходов -->
+                    <TextBlock Text="Распределение расходов по категориям" 
+                               FontSize="18" 
+                               Margin="0 0 0 10" />
+                    <lvc:CartesianChart Grid.Row="1">
+                        <lvc:CartesianChart.Series>
+                            <lvc:ColumnSeries Title="Расходы" 
+                                              Values="{Binding SpendingByCategory}" />
+                        </lvc:CartesianChart.Series>
+                        <lvc:CartesianChart.AxisX>
+                            <lvc:Axis Title="Категории" 
+                                      Labels="{Binding Categories}" />
+                        </lvc:CartesianChart.AxisX>
+                        <lvc:CartesianChart.AxisY>
+                            <lvc:Axis Title="Сумма (руб)" />
+                        </lvc:CartesianChart.AxisY>
+                    </lvc:CartesianChart>
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </Grid>
+</Window>
