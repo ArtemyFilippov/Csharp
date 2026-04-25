@@ -6,246 +6,243 @@
         xmlns:local="clr-namespace:WpfApp2"
         xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
         mc:Ignorable="d"
-        Title="Учет личных финансов" Height="650" Width="950"
+        Title="Учет личных финансов" Height="700" Width="950"
         Background="#ECEFF4"
         WindowStartupLocation="CenterScreen">
 
-	<Window.Resources>
-		<!-- Стиль кнопок действий -->
-		<Style x:Key="ActionButton" TargetType="Button">
-			<Setter Property="Padding" Value="8,4"/>
-			<Setter Property="Margin" Value="4,0"/>
-			<Setter Property="Cursor" Value="Hand"/>
-			<Setter Property="FontWeight" Value="SemiBold"/>
-			<Setter Property="FontSize" Value="12"/>
-			<Setter Property="Template">
-				<Setter.Value>
-					<ControlTemplate TargetType="Button">
-						<Border Background="{TemplateBinding Background}"
+    <Window.Resources>
+        <local:AmountToColorConverter x:Key="AmountToColor"/>
+        <local:BalanceToColorConverter x:Key="BalanceToColor"/>
+
+        <Style x:Key="ActionButton" TargetType="Button">
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="Margin" Value="4,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
                                 CornerRadius="4"
                                 Padding="{TemplateBinding Padding}">
-							<ContentPresenter HorizontalAlignment="Center"
+                            <ContentPresenter HorizontalAlignment="Center"
                                               VerticalAlignment="Center"/>
-						</Border>
-					</ControlTemplate>
-				</Setter.Value>
-			</Setter>
-		</Style>
-	</Window.Resources>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
 
-	<Grid>
-		<Grid.RowDefinitions>
-			<RowDefinition Height="Auto" />
-			<RowDefinition Height="*" />
-		</Grid.RowDefinitions>
+        <Style x:Key="FieldLabel" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Foreground" Value="#4C566A"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="0,0,0,4"/>
+        </Style>
 
-		<!-- Заголовок -->
-		<TextBlock Text="Учет личных финансов"
+        <Style x:Key="DashboardCard" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="16"/>
+            <Setter Property="Margin" Value="0,0,12,0"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Заголовок -->
+        <TextBlock Text="Учет личных финансов"
                    FontSize="24"
                    FontWeight="SemiBold"
                    Foreground="#2E3440"
                    Margin="20"/>
 
-		<!-- Основной контент -->
-		<TabControl Grid.Row="1" Margin="20,0,20,20"
-                    x:Name="MainTabControl"
-                    SelectionChanged="MainTabControl_SelectionChanged">
+        <!-- ДАШБОРД -->
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="20,0,20,16">
+            <Border Style="{StaticResource DashboardCard}" MinWidth="180">
+                <StackPanel>
+                    <TextBlock Text="Доходы" Foreground="#4C566A" FontSize="13" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                    <TextBlock Text="{Binding TotalIncome, StringFormat='{}{0:N0} ₽'}" 
+                               Foreground="#A3BE8C" FontWeight="Bold" FontSize="20"/>
+                </StackPanel>
+            </Border>
 
-			<!-- ==================== Вкладка "Транзакции" ==================== -->
-			<TabItem Header="Транзакции">
-				<Grid>
-					<Grid.RowDefinitions>
-						<RowDefinition Height="Auto"/>
-						<RowDefinition Height="*"/>
-					</Grid.RowDefinitions>
+            <Border Style="{StaticResource DashboardCard}" MinWidth="180">
+                <StackPanel>
+                    <TextBlock Text="Расходы" Foreground="#4C566A" FontSize="13" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                    <TextBlock Text="{Binding TotalExpense, StringFormat='{}{0:N0} ₽'}" 
+                               Foreground="#BF616A" FontWeight="Bold" FontSize="20"/>
+                </StackPanel>
+            </Border>
 
-					<!-- Форма добавления / редактирования -->
-					<Border Background="White"
-                            CornerRadius="8"
-                            Padding="16"
-                            Margin="0,0,0,16">
-						<Grid>
-							<Grid.RowDefinitions>
-								<RowDefinition Height="Auto"/>
-								<RowDefinition Height="Auto"/>
-							</Grid.RowDefinitions>
+            <Border Style="{StaticResource DashboardCard}" MinWidth="180">
+                <StackPanel>
+                    <TextBlock Text="Баланс" Foreground="#4C566A" FontSize="13" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                    <TextBlock Text="{Binding TotalBalance, StringFormat='{}{0:N0} ₽'}" 
+                               Foreground="{Binding TotalBalance, Converter={StaticResource BalanceToColor}}" 
+                               FontWeight="Bold" FontSize="20"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
 
-							<!-- Подсказка режима -->
-							<TextBlock Grid.Row="0"
-                                       Margin="0,0,0,10">
-								<TextBlock.Style>
-									<Style TargetType="TextBlock">
-										<Setter Property="Text" Value="Новая транзакция:"/>
-										<Setter Property="FontWeight" Value="SemiBold"/>
-										<Setter Property="Foreground" Value="#2E3440"/>
-										<Style.Triggers>
-											<DataTrigger Binding="{Binding IsEditing}" Value="True">
-												<Setter Property="Text" Value="Редактирование транзакции:"/>
-												<Setter Property="Foreground" Value="#BF616A"/>
-											</DataTrigger>
-										</Style.Triggers>
-									</Style>
-								</TextBlock.Style>
-							</TextBlock>
+        <!-- Основной контент -->
+        <TabControl Grid.Row="2" Margin="20,0,20,20">
 
-							<!-- Поля -->
-							<StackPanel Grid.Row="1" Orientation="Horizontal">
-								<ComboBox Width="150"
-                                          ItemsSource="{Binding Categories}"
-                                          SelectedItem="{Binding SelectedCategory}"
-                                          Margin="0,0,10,0"/>
-								<TextBox Width="100"
-                                         Text="{Binding Amount, UpdateSourceTrigger=PropertyChanged}"
-                                         Margin="0,0,10,0"/>
-								<DatePicker SelectedDate="{Binding Date}"
-                                            Margin="0,0,10,0"/>
-								<TextBox Width="220"
-                                         Text="{Binding Description}"
-                                         Margin="0,0,10,0"/>
+            <!-- Вкладка "Транзакции" -->
+            <TabItem Header="Транзакции">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
 
-								<!-- Кнопка: Добавить / Сохранить -->
-								<Button Content="{Binding FormButtonText}"
-                                        Command="{Binding AddTransactionCommand}"
-                                        Background="#5E81AC"
-                                        Foreground="White"
-                                        Style="{StaticResource ActionButton}"/>
+                    <!-- Форма -->
+                    <Border Background="White" CornerRadius="8" Padding="16" Margin="0,0,0,16">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
 
-								<!-- Кнопка: Отмена (видна только при редактировании) -->
-								<Button Content="Отмена"
-                                        Command="{Binding CancelEditCommand}"
-                                        Background="#D8DEE9"
-                                        Foreground="#2E3440"
-                                        Style="{StaticResource ActionButton}"
-                                        Visibility="{Binding IsEditing, Converter={StaticResource BoolToVis}, FallbackValue=Collapsed}"/>
-							</StackPanel>
-						</Grid>
-					</Border>
+                            <TextBlock Grid.Row="0" Margin="0,0,0,12">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Text" Value="Новая транзакция:"/>
+                                        <Setter Property="FontWeight" Value="SemiBold"/>
+                                        <Setter Property="Foreground" Value="#2E3440"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsEditing}" Value="True">
+                                                <Setter Property="Text" Value="Редактирование транзакции:"/>
+                                                <Setter Property="Foreground" Value="#BF616A"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
 
-					<!-- Подсказка -->
-					<TextBlock Grid.Row="1"
-                               Text="Выберите строку и нажмите ✏ или 🗑 для редактирования / удаления"
-                               Foreground="#4C566A"
-                               FontSize="12"
-                               Opacity="0.6"
-                               Margin="0,0,0,4"
-                               VerticalAlignment="Top"/>
+                            <Grid Grid.Row="1">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
 
-					<!-- Список транзакций -->
-					<DataGrid Grid.Row="1"
-                              ItemsSource="{Binding Transactions}"
-                              SelectedItem="{Binding SelectedTransaction}"
-                              AutoGenerateColumns="False"
-                              IsReadOnly="True"
-                              AlternatingRowBackground="#F5F6F8"
-                              HeadersVisibility="Column"
-                              CanUserAddRows="False"
-                              BorderThickness="0"
-                              RowHeight="30"
-                              GridLinesVisibility="Horizontal"
-                              HorizontalGridLinesBrush="#E5E9F0"
-                              Margin="0,22,0,0">
+                                <StackPanel Grid.Column="0" Margin="0,0,16,0">
+                                    <TextBlock Text="Дата" Style="{StaticResource FieldLabel}"/>
+                                    <DatePicker SelectedDate="{Binding Date}" Width="130"/>
+                                </StackPanel>
 
-						<DataGrid.Columns>
-							<DataGridTextColumn Header="Дата"
-                                                Binding="{Binding Date, StringFormat=\{0:d\}}"
-                                                Width="90"/>
-							<DataGridTextColumn Header="Категория"
-                                                Binding="{Binding Category}"
-                                                Width="110"/>
-							<DataGridTextColumn Header="Сумма, ₽"
-                                                Binding="{Binding Amount, StringFormat=\{0:N0\}}"
-                                                Width="90"/>
-							<DataGridTextColumn Header="Описание"
-                                                Binding="{Binding Description}"
-                                                Width="*"/>
+                                <StackPanel Grid.Column="1" Margin="0,0,16,0">
+                                    <TextBlock Text="Категория" Style="{StaticResource FieldLabel}"/>
+                                    <ComboBox Width="160" ItemsSource="{Binding Categories}" SelectedItem="{Binding SelectedCategory}"/>
+                                </StackPanel>
 
-							<!-- Кнопки действий -->
-							<DataGridTemplateColumn Header=""
-                                                    Width="120"
-                                                    IsReadOnly="True">
-								<DataGridTemplateColumn.CellTemplate>
-									<DataTemplate>
-										<StackPanel Orientation="Horizontal"
-                                                    HorizontalAlignment="Center">
-											<Button Content="✏ Изменить"
-                                                    Command="{Binding DataContext.EditTransactionCommand,
-                                                                      RelativeSource={RelativeSource AncestorType=DataGrid}}"
-                                                    Background="#A3BE8C"
-                                                    Foreground="White"
-                                                    FontWeight="SemiBold"
-                                                    FontSize="11"
-                                                    Padding="6,3"
-                                                    Cursor="Hand"
-                                                    Margin="2,0"
-                                                    ToolTip="Редактировать">
-												<Button.Template>
-													<ControlTemplate TargetType="Button">
-														<Border Background="{TemplateBinding Background}"
-                                                                CornerRadius="3"
-                                                                Padding="{TemplateBinding Padding}">
-															<ContentPresenter HorizontalAlignment="Center"
-                                                                              VerticalAlignment="Center"/>
-														</Border>
-													</ControlTemplate>
-												</Button.Template>
-											</Button>
-											<Button Content="✕ Удалить"
-                                                    Command="{Binding DataContext.DeleteTransactionCommand,
-                                                                      RelativeSource={RelativeSource AncestorType=DataGrid}}"
-                                                    Background="#BF616A"
-                                                    Foreground="White"
-                                                    FontWeight="SemiBold"
-                                                    FontSize="11"
-                                                    Padding="6,3"
-                                                    Cursor="Hand"
-                                                    Margin="2,0"
-                                                    ToolTip="Удалить">
-												<Button.Template>
-													<ControlTemplate TargetType="Button">
-														<Border Background="{TemplateBinding Background}"
-                                                                CornerRadius="3"
-                                                                Padding="{TemplateBinding Padding}">
-															<ContentPresenter HorizontalAlignment="Center"
-                                                                              VerticalAlignment="Center"/>
-														</Border>
-													</ControlTemplate>
-												</Button.Template>
-											</Button>
-										</StackPanel>
-									</DataTemplate>
-								</DataGridTemplateColumn.CellTemplate>
-							</DataGridTemplateColumn>
-						</DataGrid.Columns>
-					</DataGrid>
-				</Grid>
-			</TabItem>
+                                <StackPanel Grid.Column="2" Margin="0,0,16,0">
+                                    <TextBlock Text="Сумма, ₽" Style="{StaticResource FieldLabel}"/>
+                                    <TextBox Width="120">
+                                        <TextBox.Text>
+                                            <Binding Path="Amount" UpdateSourceTrigger="PropertyChanged">
+                                                <Binding.ValidationRules>
+                                                    <local:AmountValidationRule/>
+                                                </Binding.ValidationRules>
+                                            </Binding>
+                                        </TextBox.Text>
+                                    </TextBox>
+                                </StackPanel>
 
-			<!-- ==================== Вкладка "Анализ" ==================== -->
-			<TabItem Header="Анализ">
-				<Grid>
-					<Grid.RowDefinitions>
-						<RowDefinition Height="Auto"/>
-						<RowDefinition Height="*"/>
-					</Grid.RowDefinitions>
+                                <StackPanel Grid.Column="3" Margin="0,0,16,0">
+                                    <TextBlock Text="Описание" Style="{StaticResource FieldLabel}"/>
+                                    <TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"/>
+                                </StackPanel>
 
-					<TextBlock Text="Распределение расходов по категориям"
-                               FontSize="18"
-                               FontWeight="SemiBold"
-                               Foreground="#2E3440"
-                               Margin="0,0,0,12"/>
+                                <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Bottom">
+                                    <Button Content="{Binding FormButtonText}" Command="{Binding AddTransactionCommand}" Background="#5E81AC" Foreground="White" Style="{StaticResource ActionButton}"/>
+                                    <Button Content="Отмена" Command="{Binding CancelEditCommand}" Background="#D8DEE9" Foreground="#2E3440" Style="{StaticResource ActionButton}" Visibility="{Binding IsEditing, Converter={StaticResource BoolToVis}, FallbackValue=Collapsed}"/>
+                                </StackPanel>
+                            </Grid>
+                        </Grid>
+                    </Border>
 
-					<Border Grid.Row="1"
-                            Background="White"
-                            CornerRadius="8"
-                            Padding="16"
-                            BorderBrush="#D8DEE9"
-                            BorderThickness="1">
-						<lvc:CartesianChart x:Name="SpendingChart"
-                                           LegendLocation="Top"/>
-					</Border>
-				</Grid>
-			</TabItem>
+                    <TextBlock Grid.Row="1" Text="Выберите строку и нажмите Изм. или Удал." Foreground="#4C566A" FontSize="12" Opacity="0.6" Margin="0,0,0,4" VerticalAlignment="Top"/>
 
-		</TabControl>
-	</Grid>
+                    <!-- Таблица -->
+                    <DataGrid Grid.Row="1" ItemsSource="{Binding Transactions}" SelectedItem="{Binding SelectedTransaction}" AutoGenerateColumns="False" IsReadOnly="True" AlternatingRowBackground="#F5F6F8" HeadersVisibility="Column" CanUserAddRows="False" BorderThickness="0" RowHeight="38" GridLinesVisibility="Horizontal" HorizontalGridLinesBrush="#E5E9F0" Margin="0,22,0,0">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Дата" Binding="{Binding Date, StringFormat=\{0:d\}}" Width="100"/>
+                            <DataGridTextColumn Header="Категория" Binding="{Binding Category}" Width="120"/>
+
+                            <DataGridTemplateColumn Header="Сумма, ₽" Width="100">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Amount, StringFormat=\{0:N0\}}" Foreground="{Binding Category, Converter={StaticResource AmountToColor}}" FontWeight="SemiBold" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,4,0"/>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+
+                            <DataGridTextColumn Header="Описание" Binding="{Binding Description}" Width="*"/>
+
+                            <DataGridTemplateColumn Header="Действия" Width="140" IsReadOnly="True">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                            <Button Content="Изм." Command="{Binding DataContext.EditTransactionCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" Background="#A3BE8C" Foreground="White" FontWeight="SemiBold" FontSize="11" Padding="10,4" Cursor="Hand" Margin="2,0">
+                                                <Button.Template>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Border Background="{TemplateBinding Background}" CornerRadius="3" Padding="{TemplateBinding Padding}">
+                                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                        </Border>
+                                                    </ControlTemplate>
+                                                </Button.Template>
+                                            </Button>
+                                            <Button Content="Удал." Command="{Binding DataContext.DeleteTransactionCommand, RelativeSource={RelativeSource AncestorType=DataGrid}}" Background="#BF616A" Foreground="White" FontWeight="SemiBold" FontSize="11" Padding="10,4" Cursor="Hand" Margin="2,0">
+                                                <Button.Template>
+                                                    <ControlTemplate TargetType="Button">
+                                                        <Border Background="{TemplateBinding Background}" CornerRadius="3" Padding="{TemplateBinding Padding}">
+                                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                        </Border>
+                                                    </ControlTemplate>
+                                                </Button.Template>
+                                            </Button>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+
+            <!-- Вкладка "Анализ" -->
+            <TabItem Header="Анализ">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Text="Распределение расходов по категориям" FontSize="18" FontWeight="SemiBold" Foreground="#2E3440" Margin="0,0,0,12"/>
+
+                    <Border Grid.Row="1" Background="White" CornerRadius="8" Padding="16" BorderBrush="#D8DEE9" BorderThickness="1">
+                        <lvc:PieChart Series="{Binding PieSeries}" LegendLocation="Right" Hoverable="True" InnerRadius="40" Margin="0,0,0,10">
+                            <lvc:PieChart.ChartLegend>
+                                <lvc:DefaultLegend BulletSize="16" FontSize="14" Foreground="#2E3440"/>
+                            </lvc:PieChart.ChartLegend>
+                            <lvc:PieChart.DataTooltip>
+                                <lvc:DefaultTooltip BulletSize="16" FontSize="14" Foreground="#2E3440"/>
+                            </lvc:PieChart.DataTooltip>
+                        </lvc:PieChart>
+                    </Border>
+                </Grid>
+            </TabItem>
+
+        </TabControl>
+    </Grid>
 </Window>
