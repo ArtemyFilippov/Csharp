@@ -86,7 +86,8 @@ namespace WpfApp2
                 var lines = File.ReadAllLines(FilePath);
                 foreach (var line in lines)
                 {
-                    var parts = line.Split('|');
+                    var parts = line.Split(new[] { '|' }, 4);
+
                     if (parts.Length == 4 && DateTime.TryParse(parts[0], out DateTime date) && decimal.TryParse(parts[2], out decimal amount))
                         Transactions.Add(new Transaction { Date = date, Category = parts[1], Amount = amount, Description = parts[3] });
                 }
