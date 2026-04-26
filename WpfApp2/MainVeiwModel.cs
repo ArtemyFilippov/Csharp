@@ -104,10 +104,40 @@ namespace WpfApp2
 
         private void AddOrUpdateTransaction()
         {
-            if (string.IsNullOrWhiteSpace(SelectedCategory) || Amount <= 0) return;
-            if (IsEditing && SelectedTransaction != null) { SelectedTransaction.Category = SelectedCategory; SelectedTransaction.Amount = Amount; SelectedTransaction.Date = Date; SelectedTransaction.Description = Description; }
-            else { Transactions.Add(new Transaction { Category = SelectedCategory, Amount = Amount, Date = Date, Description = Description }); }
-            ResetForm(); UpdateChartDataAndSummary(); SaveData();
+            if (string.IsNullOrWhiteSpace(SelectedCategory) && Amount <= 0)
+            {
+                MessageBox.Show("Пожалуйста, выберите категорию и введите сумму больше нуля!", "Ошибка ввода", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(SelectedCategory))
+            {
+                MessageBox.Show("Пожалуйста, выберите категорию!", "Ошибка ввода", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (Amount <= 0)
+            {
+                MessageBox.Show("Сумма должна быть больше нуля!", "Ошибка ввода", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            // Если все проверки пройдены, сохраняем/обновляем
+            if (IsEditing && SelectedTransaction != null)
+            {
+                SelectedTransaction.Category = SelectedCategory;
+                SelectedTransaction.Amount = Amount;
+                SelectedTransaction.Date = Date;
+                SelectedTransaction.Description = Description;
+            }
+            else
+            {
+                Transactions.Add(new Transaction { Category = SelectedCategory, Amount = Amount, Date = Date, Description = Description });
+            }
+
+            ResetForm();
+            UpdateChartDataAndSummary();
+            SaveData();
         }
 
         private void EditTransaction() { if (SelectedTransaction == null) return; IsEditing = true; SelectedCategory = SelectedTransaction.Category; Amount = SelectedTransaction.Amount; Date = SelectedTransaction.Date; Description = SelectedTransaction.Description; }
