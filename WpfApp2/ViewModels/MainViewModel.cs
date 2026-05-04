@@ -6,10 +6,11 @@ using WpfApp2.Models;
 using WpfApp2.Services;
 using LiveCharts;
 using LiveCharts.Wpf;
+using System.ComponentModel;
 
 namespace WpfApp2.ViewModels
 {
-    public class MainViewModel : IDisposable
+    public class MainViewModel : IDisposable, INotifyPropertyChanged
     {
         private const string FilePath = "transactions.txt";
 
